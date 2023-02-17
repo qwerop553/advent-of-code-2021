@@ -1,3 +1,7 @@
+enum class RatingType{
+    OXYGEN, CO2
+}
+
 fun main() {
     fun part1(input: List<String>): Int {
         // indices function gives us every valid index into the string that we're accessing
@@ -15,31 +19,27 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        val columns: IntRange = input[0].indices
 
-        var tempInput_oxygen = input
-        columns.forEach { columnNo ->
-            val (zeroes, ones) = tempInput_oxygen.countBitsInColumn(columnNo)
-            if (tempInput_oxygen.size == 1){}
-            else {
-                tempInput_oxygen = if (zeroes > ones) tempInput_oxygen
-                    .filter { line -> line[columnNo] == '0' } else tempInput_oxygen.filter { line -> line[columnNo] == '1' }
+        fun rating(type: RatingType): String {
+            val columns: IntRange = input[0].indices
+            var candidates = input
+            for (column in columns) {
+                val (zeroes, ones) = candidates.countBitsInColumn(column)
+                val mostCommon = if (zeroes > ones) '0' else '1'
+                candidates = candidates.filter {
+                    when (type) {
+                        RatingType.OXYGEN -> it[column] == mostCommon
+                        RatingType.CO2 -> it[column] != mostCommon
+                    }
+                }
+                if (candidates.size == 1) break
             }
+            return candidates.single()
         }
 
-        var tempInput_scrubber = input
-        columns.forEach{columnNo ->
-            val (zeroes, ones) = tempInput_scrubber.countBitsInColumn(columnNo)
-            if (tempInput_scrubber.size == 1){}
-            else {
-                tempInput_scrubber = if (zeroes > ones) tempInput_scrubber
-                    .filter { line -> line[columnNo] == '1' } else tempInput_scrubber.filter { line -> line[columnNo] == '0' }
-            }
-        }
-        val oxygenRate = tempInput_oxygen[0].toInt(2)
-        val scrubberRate = tempInput_scrubber[0].toInt(2)
-        return oxygenRate * scrubberRate
+        return rating(RatingType.OXYGEN).toInt(2) * rating(RatingType.CO2).toInt(2)
     }
+
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day03_test")
@@ -50,8 +50,8 @@ fun main() {
 
     part1(input).println()
     part2(input).println()
-}
 
+}
 private fun String.invertBinaryString() = this
     .asIterable()
     // '1' '0' produces error!
