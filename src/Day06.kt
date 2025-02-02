@@ -1,45 +1,38 @@
-import java.math.BigInteger
-import kotlin.math.pow
+class Day06(input: List<String>) {
 
-fun main() {
+    private val fishesPerDay: LongArray = parseInput(input)
 
-
-    fun part1(input: List<String>, days: Int): BigInteger {
-        var fishes = input.first().split(",").map { it.toInt() }.sorted().groupingBy { it }.eachCount().toMutableMap()
-        val fihes: MutableMap<Int, BigInteger> = mutableMapOf()
-        for ((k, v) in fishes) {
-            fihes[k] = BigInteger(v.toString())
-        }
-        for (i in 1..days) {
-
-            val newborns: BigInteger = fihes[0] ?: BigInteger("0")
-
-            for (day in 0..7) {
-                fihes[day] = fihes[day + 1] ?: BigInteger("0")
+    private fun parseInput(input: List<String>): LongArray =
+        LongArray(9).apply {
+            input.map{ it.split(",").map { it.toInt() }.forEach { this[it] += 1L }
             }
-            fihes[6] = fihes[6]!! + newborns
-            fihes[8] = newborns
         }
 
-        var sum = BigInteger("0")
-        for (a in fihes.values) sum += a
-        return sum
+    fun solvePart1(): Long =
+        simulateDays(80)
+
+    fun solvePart2(): Long =
+        simulateDays(256)
+
+    private fun simulateDays(days: Int): Long {
+        repeat(days) {
+            fishesPerDay.rotateLeftInPlace()
+            fishesPerDay[6] += fishesPerDay[8]
+        }
+        return fishesPerDay.sum()
     }
 
-    fun part2(input: List<String>): BigInteger? {
-        val fishes = input.first().split(",").map { it.toInt() }.sorted().groupingBy { it }.eachCount()
-        var sum = BigInteger.ZERO
-        for (key in 0..8)
-            sum += (fishes.getOrDefault(0, 0) * (2.0.pow(((80 - key) / 7)))).toInt().toBigInteger()
-
-        return sum
+    private fun LongArray.rotateLeftInPlace() {
+        val leftMost = first()
+        this.copyInto(this, startIndex = 1)
+        this[this.lastIndex] = leftMost
     }
-
-
-
-
-    check(part2(readInput("Day06_test"))==BigInteger("5934"))
-    //println(part1(readInput("Day06"), 256))
-
-
 }
+
+/*
+fun main(){
+    val input = readInput("Day06")
+    println("Day 6: ${Day06(input).solvePart1()}")
+    println("Day 6: ${Day06(input).solvePart2()}")
+}
+ */
