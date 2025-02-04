@@ -2,35 +2,32 @@ import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.round
 
-class Day07(input: List<String>) {
+class Day07() {
 
-    private fun parseInput(input: List<String>): IntArray {
+    private val distanceFuel = IntArray(10000){-1}
+
+
+    private fun getDistanceFuel(distance: Int): Int = if (distanceFuel[distance] >= 0) distanceFuel[distance] else distance + getDistanceFuel(distance-1)
+
+    fun parseInput(input: List<String>): Int {
         val numbers = input.first().split(",").map{it.toInt()}
-        val array =  IntArray(numbers.max() + 1).apply{
+        val crabs = IntArray(numbers.max() + 1).apply{
             numbers.forEach { this[it] += 1 }
         }
-        return array
-    }
-
-    private val crabs = parseInput(input)
-
-    private fun IntArray.getPos(): Int {
-        val total = crabs.foldIndexed(0){ index: Int, acc: Int, i: Int ->
-            acc + i * index
+        val fuels: IntArray = IntArray(numbers.max()+1)
+        distanceFuel[0] = 0
+        fuels.forEachIndexed { fuelIndex, _ ->
+            val fuel = crabs.foldIndexed(0) { crabIndex, totalFuel: Int, crab ->
+                totalFuel + getDistanceFuel(abs(crabIndex - fuelIndex)) * crab
+                // totalFuel + abs(crabIndex - fuelIndex) * crab
+            }
+            fuels[fuelIndex] = fuel
         }
-        return floor(total.toDouble()/crabs.sum().toDouble()).toInt()
-    }
-
-    fun solvePart1(): Int{
-        val center = crabs.getPos()
-        val total = crabs.foldIndexed(0){
-            index: Int, acc: Int, i: Int ->
-            acc + i * abs(center-index)
-        }
-        return total
+        return fuels.min()
     }
 }
 
+
 fun main(){
-    println(Day07(readInput("Day07")).solvePart1())
+    println(Day07().parseInput(readInput("Day07")))
 }
