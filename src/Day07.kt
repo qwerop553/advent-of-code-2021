@@ -1,33 +1,30 @@
 import kotlin.math.abs
-import kotlin.math.floor
-import kotlin.math.round
 
-class Day07() {
+class Day07(input: List<String>) {
 
-    private val distanceFuel = IntArray(10000){-1}
+    private val crabs: Map<Int, Int> = input.first().split(",").map { it.toInt() }.groupingBy { it }.eachCount()
+
+    private fun solve(distance: (Int) -> Int) =
+        crabs.keys.asRange().map { target ->
+            crabs.map { (crab, crabCount) ->
+                distance(abs(crab - target)) * crabCount
+            }.sum()
+        }.minOf { it }
 
 
-    private fun getDistanceFuel(distance: Int): Int = if (distanceFuel[distance] >= 0) distanceFuel[distance] else distance + getDistanceFuel(distance-1)
 
-    fun parseInput(input: List<String>): Int {
-        val numbers = input.first().split(",").map{it.toInt()}
-        val crabs = IntArray(numbers.max() + 1).apply{
-            numbers.forEach { this[it] += 1 }
-        }
-        val fuels: IntArray = IntArray(numbers.max()+1)
-        distanceFuel[0] = 0
-        fuels.forEachIndexed { fuelIndex, _ ->
-            val fuel = crabs.foldIndexed(0) { crabIndex, totalFuel: Int, crab ->
-                totalFuel + getDistanceFuel(abs(crabIndex - fuelIndex)) * crab
-                // totalFuel + abs(crabIndex - fuelIndex) * crab
-            }
-            fuels[fuelIndex] = fuel
-        }
-        return fuels.min()
-    }
+    fun solvePart1() = solve{ it }
+
+    fun solvePart2() = solve { it * (it + 1) / 2}
+}
+
+private fun Set<Int>.asRange(): IntRange {
+    return this.minOf{it}..this.maxOf{it}
 }
 
 
 fun main(){
-    println(Day07().parseInput(readInput("Day07")))
+    val day07: Day07 = Day07(readInput("Day07"))
+    println("Answer for part 1: ${day07.solvePart1()}")
+    println("Answer for part 2: ${day07.solvePart2()}")
 }
