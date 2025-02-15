@@ -3,9 +3,9 @@ class Day06(input: List<String>) {
     private val fishesPerDay: LongArray = parseInput(input)
 
     private fun parseInput(input: List<String>): LongArray =
-        LongArray(9).apply {
-            input.map{ it.split(",").map { it.toInt() }.forEach { this[it] += 1L }
-            }
+        LongArray(9).apply { // apply는 정말 receiver로 사용하기 위해서 호출한 것 뿐이구나.
+                // 리뷰 전 코드: input.map{ it.split(",").map { it.toInt() }.forEach { this[it] += 1L }
+                input.first().split(",").map { it.toInt() }.forEach { this[it] += 1L }
         }
 
     fun solvePart1(): Long =

@@ -1,48 +1,28 @@
 import kotlin.math.abs
-
 fun main(){
-
-    fun part1(input: List<String>): Any{
-
-        val lines = inputToListOfLines(input)
-
-        return lines.filter{ it.isHorizontalOrVertical() }.countOverlappedPoints()
-    }
-
-    fun part2(input: List<String>): Any{
-
-        val lines = inputToListOfLines(input)
-
-        return lines.countOverlappedPoints()
-    }
-    assert(part1(readInput("Day05_test"))==5)
-    println("Result part1: ${part1(readInput("Day05"))}")
-
-    assert(part2(readInput("Day05_test"))==12)
-    println("Result part1: ${part2(readInput("Day05"))}")
+    val day05 = Day05(readInput("Day05"))
+    println("Day05 part1 result: ${day05.solvePart1()}")
+    println("Day05 part2 result: ${day05.solvePart2()}")
 }
+class Day05(input: List<String>) {
 
-fun List<Line>.countOverlappedPoints(): Int{
-    val allPoints =  this.map{ line ->
-        line.getPoints()
-    }.flatten()
-    return allPoints.groupBy{point -> point}.filter { it.value.size > 1 }.count()
-}
-
-
-fun inputToListOfLines(input: List<String>): List<Line> {
-    val segments: List<List<List<Int>>> = input.map { line ->
-        line.split(" -> ").map { point ->
-            point.split(",").map { num ->
-                num.toInt()
+    private val lines: List<Line>  = input.map { line ->
+        line.split("->").map { point ->
+            point.split(",").map { numbers ->
+                numbers.trim().toInt()
             }
-        }
+        }.run{Line.fromCollection(this)}
     }
 
-    val lines = segments.map { line ->
-        Line.fromCollection(line)
+    fun solvePart1() = lines.filter { it.isHorizontalOrVertical() }.countOverlappedPoints()
+    fun solvePart2() = lines.countOverlappedPoints()
+
+    private fun List<Line>.countOverlappedPoints(): Int{
+        val allPoints =  this.map{ line ->
+            line.getPoints()
+        }.flatten()
+        return allPoints.groupBy{point -> point}.filter { it.value.size > 1 }.count()
     }
-    return lines
 }
 
 data class Line(val x1: Int, val y1: Int, val x2: Int, val y2: Int) {
@@ -51,7 +31,6 @@ data class Line(val x1: Int, val y1: Int, val x2: Int, val y2: Int) {
         fun fromCollection(line: List<List<Int>>): Line {
             return Line(line[0][0], line[0][1], line[1][0], line[1][1])
         }
-
     }
 
     fun isHorizontalOrVertical(): Boolean = isVertical() || isHorizontal()
